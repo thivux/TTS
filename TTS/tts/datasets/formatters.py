@@ -661,10 +661,10 @@ def vivos(root_path, manifest_file, **kwargs):
         for line in f:
             path, trans, spk, l = line.strip().split("|")
             items.append({
-                'audio_file': "/home/ubuntu/workspace/TTS/recipes/vctk/yourtts/VIVOS/" + path,
+                'audio_file': "/workspace/code/TTS/recipes/vctk/yourtts/VIVOS/" + path,
                 'text': trans,
                 'speaker_name': spk,
                 'language': 'vi',
-                'root_path': '/home/ubuntu/workspace/TTS/recipes/vctk/yourtts/VIVOS'
+                'root_path': '/workspace/code/TTS/recipes/vctk/yourtts/VIVOS'
             })
     return items
