@@ -653,3 +653,18 @@ def bel_tts_formatter(root_path, meta_file, **kwargs):  # pylint: disable=unused
             text = cols[1]
             items.append({"text": text, "audio_file": wav_file, "speaker_name": speaker_name, "root_path": root_path})
     return items
+
+
+def vivos(root_path, manifest_file, **kwargs):
+    items = []
+    with open(os.path.join(root_path, manifest_file), 'r') as f:
+        for line in f:
+            path, trans, spk, l = line.strip().split("|")
+            items.append({
+                'audio_file': "/home/ubuntu/workspace/TTS/recipes/vctk/yourtts/VIVOS/" + path,
+                'text': trans,
+                'speaker_name': spk,
+                'language': 'vi',
+                'root_path': '/home/ubuntu/workspace/TTS/recipes/vctk/yourtts/VIVOS'
+            })
+    return items
