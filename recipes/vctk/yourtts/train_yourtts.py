@@ -24,7 +24,7 @@ torch.set_num_threads(24)
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Name of the run for the Trainer
-RUN_NAME = "YourTTS-VI-VIVOS-1M"
+RUN_NAME = "YourTTS-VI-VIVOS-0M-VI-CHAR"
 
 # Path where you want to save the models outputs (configs, checkpoints and tensorboard logs)
 OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")  # "/raid/coqui/Checkpoints/original-YourTTS/"
