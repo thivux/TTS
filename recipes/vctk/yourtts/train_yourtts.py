@@ -37,7 +37,7 @@ RESTORE_PATH = "vits_coqui.pth"
 SKIP_TRAIN_EPOCH = True 
 
 # Set here the batch size to be used in training and evaluation
-BATCH_SIZE = 80 
+BATCH_SIZE = 32 
 
 # Training Sampling rate and the target sampling rate for resampling the downloaded dataset (Note: If you change this you might need to redownload the dataset !!)
 # Note: If you add new datasets, please make sure that the dataset sampling rate and this parameter are matching, otherwise resample your audios
@@ -65,22 +65,38 @@ vctk_config = BaseDatasetConfig(
     path=VCTK_DOWNLOAD_PATH,
     language="en",
     ignored_speakers=[
-        "p261",
-        "p225",
-        "p294",
-        "p347",
-        "p238",
-        "p234",
-        "p248",
-        "p335",
-        "p245",
-        "p326",
-        "p302",
+        # "p261",
+        # "p225",
+        # "p294",
+        # "p347",
+        # "p238",
+        # "p234",
+        # "p248",
+        # "p335",
+        # "p245",
+        # "p326",
+        # "p302",
+        'VIVOSDEV01', 'VIVOSDEV02', 'VIVOSDEV03', 'VIVOSDEV04', 
+        'VIVOSDEV05', 'VIVOSDEV06', 'VIVOSDEV07', 'VIVOSDEV08', 
+        'VIVOSDEV09', 'VIVOSDEV10', 'VIVOSDEV11', 'VIVOSDEV12', 
+        'VIVOSDEV13', 'VIVOSDEV14', 'VIVOSDEV15', 'VIVOSDEV16', 
+        'VIVOSDEV17', 'VIVOSDEV18', 'VIVOSDEV19'
     ],  # Ignore the test speakers to full replicate the paper experiment
 )
 
+VIVOS_PATH = os.path.join(CURRENT_PATH, "VIVOS")
+
+# dataset config for one of the pre-defined datasets
+vivos_config = BaseDatasetConfig(
+    path=VIVOS_PATH,
+    meta_file_train="metadata.txt",
+    language='vi',
+    dataset_name="VIVOS",
+    formatter="vivos"
+)
+
 # Add here all datasets configs, in our case we just want to train with the VCTK dataset then we need to add just VCTK. Note: If you want to add new datasets, just add them here and it will automatically compute the speaker embeddings (d-vectors) for this new dataset :)
-DATASETS_CONFIG_LIST = [vctk_config]
+DATASETS_CONFIG_LIST = [vivos_config]
 
 ### Extract speaker embeddings
 # SPEAKER_ENCODER_CHECKPOINT_PATH = "https://github.com/coqui-ai/TTS/releases/download/speaker_encoder_model/model_se.pth.tar"
@@ -171,8 +187,8 @@ config = VitsConfig(
     compute_input_seq_cache=True,
     add_blank=True,
     text_cleaner="multilingual_cleaners",
-    lr_gen=5e-5,
-    lr_disc=5e-5,
+    # lr_gen=5e-5,
+    # lr_disc=5e-5,
     characters=CharactersConfig(
         characters_class="TTS.tts.models.vits.VitsCharacters",
         pad="_",
@@ -180,7 +196,7 @@ config = VitsConfig(
         bos="*",
         blank=None,
         # characters="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\u00af\u00b7\u00df\u00e0\u00e1\u00e2\u00e3\u00e4\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f9\u00fa\u00fb\u00fc\u00ff\u0101\u0105\u0107\u0113\u0119\u011b\u012b\u0131\u0142\u0144\u014d\u0151\u0153\u015b\u016b\u0171\u017a\u017c\u01ce\u01d0\u01d2\u01d4\u0430\u0431\u0432\u0433\u0434\u0435\u0436\u0437\u0438\u0439\u043a\u043b\u043c\u043d\u043e\u043f\u0440\u0441\u0442\u0443\u0444\u0445\u0446\u0447\u0448\u0449\u044a\u044b\u044c\u044d\u044e\u044f\u0451\u0454\u0456\u0457\u0491\u2013!'(),-.:;? ",
-        characers=""
+        characters="êĩlốừũễíẫsỷửòẵmợpỳàọịbẳểgônõặổằỹụfóqrìảẽớuveạaýậèếâỵộứoãùữấéệởzỏiẹăưồẻủcềáxỡkúựắydỉơhđầjẩwtỗờ ",
         punctuations="!'(),-.:;? ",
         phonemes="",
         is_unique=True,
@@ -194,35 +210,59 @@ config = VitsConfig(
     max_audio_len=SAMPLE_RATE * MAX_AUDIO_LEN_IN_SECONDS,
     mixed_precision=False,
     test_sentences=[
-        [
-            "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
-            "VCTK_p277",
+        # [
+        #     "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
+        #     "VCTK_p277",
+        #     None,
+        #     "en",
+        # ],
+        # [
+        #     "Be a voice, not an echo.",
+        #     "VCTK_p239",
+        #     None,
+        #     "en",
+        # ],
+        # [
+        #     "I'm sorry Dave. I'm afraid I can't do that.",
+        #     "VCTK_p258",
+        #     None,
+        #     "en",
+        # ],
+        # [
+        #     "This cake is great. It's so delicious and moist.",
+        #     "VCTK_p244",
+        #     None,
+        #     "en",
+        # ],
+        # [
+        #     "Prior to November 22, 1963.",
+        #     "VCTK_p305",
+        #     None,
+        #     "en",
+        # ],
+                [
+            "thôi thì đành thế chứ biết sao giờ",
+            'VIVOSSPK17',
             None,
-            "en",
+            'vi'
         ],
         [
-            "Be a voice, not an echo.",
-            "VCTK_p239",
+            "có một cách này hay lắm không biết anh có muốn nghe không",
+            'VIVOSSPK17',
             None,
-            "en",
+            'vi'
         ],
         [
-            "I'm sorry Dave. I'm afraid I can't do that.",
-            "VCTK_p258",
+            "mỗi ngày phục vụ hàng trăm suất cơm và chịu lỗ cả trăm triệu đồng",
+            'VIVOSSPK16',
             None,
-            "en",
+            'vi'
         ],
         [
-            "This cake is great. It's so delicious and moist.",
-            "VCTK_p244",
+            "nhạc sĩ và lực sĩ em chọn ai",
+            'VIVOSSPK15',
             None,
-            "en",
-        ],
-        [
-            "Prior to November 22, 1963.",
-            "VCTK_p305",
-            None,
-            "en",
+            'vi'
         ],
     ],
     # Enable the weighted sampler
@@ -241,6 +281,31 @@ train_samples, eval_samples = load_tts_samples(
     eval_split_max_size=config.eval_split_max_size,
     eval_split_size=config.eval_split_size,
 )
+
+vivos_train = 0
+vivos_eval = 0
+vctk_train = 0
+vctk_eval = 0
+
+for sample in train_samples:
+    audio_file = sample['audio_file']
+    if "VIVOSSPK" in audio_file:
+        vivos_train += 1
+    elif "VCTK" in audio_file:
+        vctk_train += 1
+
+for sample in eval_samples:
+    audio_file = sample['audio_file']
+    if "VIVOSSPK" in audio_file:
+        vivos_eval += 1
+    elif "VCTK" in audio_file:
+        vctk_eval += 1
+
+print(f'# vivos samples in trainset: {vivos_train}')
+print(f'# vivos samples in eval: {vivos_eval}')
+
+print(f'# vctk samples in trainset: {vctk_train}')
+print(f'# vctk samples in eval: {vctk_eval}')
 
 # Init the model
 model = Vits.init_from_config(config)
