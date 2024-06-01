@@ -39,14 +39,14 @@ RESTORE_PATH = None  # start fresh
 SKIP_TRAIN_EPOCH = False
 
 # Set here the batch size to be used in training and evaluation
-BATCH_SIZE = 80
+BATCH_SIZE = 40
 
 # Training Sampling rate and the target sampling rate for resampling the downloaded dataset (Note: If you change this you might need to redownload the dataset !!)
 # Note: If you add new datasets, please make sure that the dataset sampling rate and this parameter are matching, otherwise resample your audios
 SAMPLE_RATE = 16000
 
 # Max audio length in seconds to be used in training (every audio bigger than it wilssl be ignored)
-MAX_AUDIO_LEN_IN_SECONDS = 10
+MAX_AUDIO_LEN_IN_SECONDS = 25
 
 # Download VCTK dataset
 VCTK_DOWNLOAD_PATH = os.path.join(CURRENT_PATH, "VCTK")
