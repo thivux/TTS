@@ -672,14 +672,15 @@ def vivos(root_path, manifest_file, **kwargs):
 
 def sach_noi(root_path, manifest_file, **kwargs):
     items = []
+    root_path = '/home/thivux/code/vinai/TTS/TTS/tts/datasets/formatters.py'
     with open(os.path.join(root_path, manifest_file), 'r') as f:
         for line in f:
             path, trans, spk, dur = line.strip().split("|")
             items.append({
-                'audio_file': path,
+                'audio_file': os.path.join(root_path, path),
                 'text': trans,
                 'speaker_name': spk,
                 'language': 'vi',
-                'root_path': '/workspace/code/TTS/recipes/vctk/yourtts/SACH_NOI'
+                'root_path': root_path
             })
     return items
