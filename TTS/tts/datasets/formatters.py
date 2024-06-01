@@ -672,7 +672,7 @@ def vivos(root_path, manifest_file, **kwargs):
 
 def sach_noi(root_path, manifest_file, **kwargs):
     items = []
-    root_path = '/home/thivux/code/vinai/TTS/TTS/tts/datasets/formatters.py'
+    root_path = '/workspace/code/TTS/recipes/vctk/yourtts/SACH_NOI'
     with open(os.path.join(root_path, manifest_file), 'r') as f:
         for line in f:
             path, trans, spk, dur = line.strip().split("|")
