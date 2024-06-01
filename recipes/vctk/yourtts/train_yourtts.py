@@ -24,7 +24,7 @@ torch.set_num_threads(24)
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Name of the run for the Trainer
-RUN_NAME = "YourTTS-EN-VCTK-0M-VI-CHAR"
+RUN_NAME = "YourTTS-EN-VCTK-0M-VI-CHAR-430k"
 
 # Path where you want to save the models outputs (configs, checkpoints and tensorboard logs)
 # "/raid/coqui/Checkpoints/original-YourTTS/"
@@ -33,7 +33,8 @@ OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 # If you want to do transfer learning and speedup your training you can set here the path to the original YourTTS model
 # RESTORE_PATH = "tts_models--multilingual--multi-dataset--your_tts/model_file.pth.tar"
 # RESTORE_PATH = "vits_coqui.pth"
-RESTORE_PATH = None # start fresh 
+# RESTORE_PATH = "logs/YourTTS-EN-VCTK-0M-VI-CHAR-May-15-2024_01+47PM-0000000/checkpoint_55000.pth" # start fresh 
+RESTORE_PATH = "logs/YourTTS-EN-VCTK-0M-VI-CHAR-May-18-2024_12+45AM-8fd90754/checkpoint_430000.pth"
 
 # This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
 SKIP_TRAIN_EPOCH = False
@@ -230,7 +231,7 @@ config = VitsConfig(
         ],
         [
             "I'm sorry Dave. I'm afraid I can't do that.",
-            "VCTK_p258",
+            "VCT_p258",
             None,
             "en",
         ],
@@ -246,6 +247,31 @@ config = VitsConfig(
             None,
             "en",
         ],
+        # # ignored (unseen) speakers
+        # [
+        #     "The minister additionally proposed introducing incentives to discourage one-time withdrawal of social insurance benefits",
+        #     "VCTK_261",
+        #     None,
+        #     'en',
+        # ],
+        # [
+        #     "Much of the dialogue is Vietnamese, and so are much of the cast",
+        #     "VCTK_225",
+        #     None,
+        #     'en',
+        # ],
+        # [
+        #     "But make no mistake, this is a series that is really about something, that tackles expansive subject matter with clarity and verve",
+        #     "VCTK_294",
+        #     None,
+        #     'en',
+        # ],
+        # [
+        #     "But make no mistake, this is a series that is really about something, that tackles expansive subject matter with clarity and verve",
+        #     "VCTK_347",
+        #     None,
+        #     'en',
+        # ],
         # [
         #     "thôi thì đành thế chứ biết sao giờ",
         #     'VIVOSSPK17',
