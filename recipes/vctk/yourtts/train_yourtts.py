@@ -24,21 +24,22 @@ torch.set_num_threads(24)
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Name of the run for the Trainer
-RUN_NAME = "YourTTS-VI-VIVOS-0M-VI-CHAR"
+RUN_NAME = "YourTTS-VI-SACH_NOI-0M-VI-CHAR"
 
 # Path where you want to save the models outputs (configs, checkpoints and tensorboard logs)
-OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")  # "/raid/coqui/Checkpoints/original-YourTTS/"
+# "/raid/coqui/Checkpoints/original-YourTTS/"
+OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 
 # If you want to do transfer learning and speedup your training you can set here the path to the original YourTTS model
-# RESTORE_PATH = "tts_models--multilingual--multi-dataset--your_tts/model_file.pth.tar" # paper's model, trained on multi languages 
+# RESTORE_PATH = "tts_models--multilingual--multi-dataset--your_tts/model_file.pth.tar" # paper's model, trained on multi languages
 # RESTORE_PATH = "vits_coqui.pth" # 1M VITS LJSpeech
-RESTORE_PATH = None # start fresh 
+RESTORE_PATH = None  # start fresh
 
 # This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
 SKIP_TRAIN_EPOCH = False
 
 # Set here the batch size to be used in training and evaluation
-BATCH_SIZE = 80 
+BATCH_SIZE = 80
 
 # Training Sampling rate and the target sampling rate for resampling the downloaded dataset (Note: If you change this you might need to redownload the dataset !!)
 # Note: If you add new datasets, please make sure that the dataset sampling rate and this parameter are matching, otherwise resample your audios
@@ -47,7 +48,7 @@ SAMPLE_RATE = 16000
 # Max audio length in seconds to be used in training (every audio bigger than it wilssl be ignored)
 MAX_AUDIO_LEN_IN_SECONDS = 10
 
-### Download VCTK dataset
+# Download VCTK dataset
 VCTK_DOWNLOAD_PATH = os.path.join(CURRENT_PATH, "VCTK")
 # Define the number of threads used during the audio resampling
 NUM_RESAMPLE_THREADS = 10
@@ -55,7 +56,8 @@ NUM_RESAMPLE_THREADS = 10
 if not os.path.exists(VCTK_DOWNLOAD_PATH):
     print(">>> Downloading VCTK dataset:")
     download_vctk(VCTK_DOWNLOAD_PATH)
-    resample_files(VCTK_DOWNLOAD_PATH, SAMPLE_RATE, file_ext="flac", n_jobs=NUM_RESAMPLE_THREADS)
+    resample_files(VCTK_DOWNLOAD_PATH, SAMPLE_RATE,
+                   file_ext="flac", n_jobs=NUM_RESAMPLE_THREADS)
 
 # init configs
 vctk_config = BaseDatasetConfig(
@@ -66,22 +68,17 @@ vctk_config = BaseDatasetConfig(
     path=VCTK_DOWNLOAD_PATH,
     language="en",
     ignored_speakers=[
-        # "p261",
-        # "p225",
-        # "p294",
-        # "p347",
-        # "p238",
-        # "p234",
-        # "p248",
-        # "p335",
-        # "p245",
-        # "p326",
-        # "p302",
-        'VIVOSDEV01', 'VIVOSDEV02', 'VIVOSDEV03', 'VIVOSDEV04', 
-        'VIVOSDEV05', 'VIVOSDEV06', 'VIVOSDEV07', 'VIVOSDEV08', 
-        'VIVOSDEV09', 'VIVOSDEV10', 'VIVOSDEV11', 'VIVOSDEV12', 
-        'VIVOSDEV13', 'VIVOSDEV14', 'VIVOSDEV15', 'VIVOSDEV16', 
-        'VIVOSDEV17', 'VIVOSDEV18', 'VIVOSDEV19'
+        "p261",
+        "p225",
+        "p294",
+        "p347",
+        "p238",
+        "p234",
+        "p248",
+        "p335",
+        "p245",
+        "p326",
+        "p302",
     ],  # Ignore the test speakers to full replicate the paper experiment
 )
 
@@ -93,17 +90,37 @@ vivos_config = BaseDatasetConfig(
     meta_file_train="metadata.txt",
     language='vi',
     dataset_name="VIVOS",
-    formatter="vivos"
+    formatter="vivos",
+    ignored_speakers=[
+        'VIVOSDEV01', 'VIVOSDEV02', 'VIVOSDEV03', 'VIVOSDEV04',
+        'VIVOSDEV05', 'VIVOSDEV06', 'VIVOSDEV07', 'VIVOSDEV08',
+        'VIVOSDEV09', 'VIVOSDEV10', 'VIVOSDEV11', 'VIVOSDEV12',
+        'VIVOSDEV13', 'VIVOSDEV14', 'VIVOSDEV15', 'VIVOSDEV16',
+        'VIVOSDEV17', 'VIVOSDEV18', 'VIVOSDEV19'
+    ]
 )
 
+SACH_NOI_PATH = os.path.join(CURRENT_PATH, "SACH_NOI")
+sach_noi_config = BaseDatasetConfig(
+    path=SACH_NOI_PATH,
+    meta_file_train="metadata.txt",
+    language='vi',
+    dataset_name="SACH_NOI",
+    formatter="sach_noi",
+    ignored_speakers=[
+        'Tám_Hà', 'Lan_Thi', 'Thanh_Huyền', 'Bách_Diệp', 'Minh_Niệm'
+    ]
+)
 # Add here all datasets configs, in our case we just want to train with the VCTK dataset then we need to add just VCTK. Note: If you want to add new datasets, just add them here and it will automatically compute the speaker embeddings (d-vectors) for this new dataset :)
-DATASETS_CONFIG_LIST = [vivos_config]
+DATASETS_CONFIG_LIST = [sach_noi_config]
 
-### Extract speaker embeddings
+# Extract speaker embeddings
 # SPEAKER_ENCODER_CHECKPOINT_PATH = "https://github.com/coqui-ai/TTS/releases/download/speaker_encoder_model/model_se.pth.tar"
-SPEAKER_ENCODER_CHECKPOINT_PATH = os.path.join(CURRENT_PATH, "tts_models--multilingual--multi-dataset--your_tts/model_se.pth.tar") 
+SPEAKER_ENCODER_CHECKPOINT_PATH = os.path.join(
+    CURRENT_PATH, "tts_models--multilingual--multi-dataset--your_tts/model_se.pth.tar")
 # SPEAKER_ENCODER_CONFIG_PATH = "https://github.com/coqui-ai/TTS/releases/download/speaker_encoder_model/config_se.json"
-SPEAKER_ENCODER_CONFIG_PATH = os.path.join(CURRENT_PATH, "tts_models--multilingual--multi-dataset--your_tts/config_se.json")
+SPEAKER_ENCODER_CONFIG_PATH = os.path.join(
+    CURRENT_PATH, "tts_models--multilingual--multi-dataset--your_tts/config_se.json")
 
 D_VECTOR_FILES = []  # List of speaker embeddings/d-vectors to be used during the training
 
@@ -112,7 +129,8 @@ for dataset_conf in DATASETS_CONFIG_LIST:
     # Check if the embeddings weren't already computed, if not compute it
     embeddings_file = os.path.join(dataset_conf.path, "speakers.pth")
     if not os.path.isfile(embeddings_file):
-        print(f">>> Computing the speaker embeddings for the {dataset_conf.dataset_name} dataset")
+        print(
+            f">>> Computing the speaker embeddings for the {dataset_conf.dataset_name} dataset")
         compute_embeddings(
             SPEAKER_ENCODER_CHECKPOINT_PATH,
             SPEAKER_ENCODER_CONFIG_PATH,
@@ -151,7 +169,7 @@ model_args = VitsArgs(
     speaker_encoder_config_path=SPEAKER_ENCODER_CONFIG_PATH,
     resblock_type_decoder="2",  # In the paper, we accidentally trained the YourTTS using ResNet blocks type 2, if you like you can use the ResNet blocks type 1 like the VITS model
     # Useful parameters to enable the Speaker Consistency Loss (SCL) described in the paper
-    # use_speaker_encoder_as_loss=True,
+    use_speaker_encoder_as_loss=True,
     # Useful parameters to enable multilingual training
     # use_language_embedding=True,
     # embedded_language_dim=4,
@@ -180,7 +198,7 @@ config = VitsConfig(
     save_step=5000,
     save_n_checkpoints=2,
     save_checkpoints=True,
-    target_loss="loss_1", #NOTE: best ckpt is based on this metric
+    target_loss="loss_1",  # NOTE: best ckpt is based on this metric
     print_eval=False,
     use_phonemes=False,
     phonemizer="espeak",
@@ -211,57 +229,27 @@ config = VitsConfig(
     max_audio_len=SAMPLE_RATE * MAX_AUDIO_LEN_IN_SECONDS,
     mixed_precision=False,
     test_sentences=[
-        # [
-        #     "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
-        #     "VCTK_p277",
-        #     None,
-        #     "en",
-        # ],
-        # [
-        #     "Be a voice, not an echo.",
-        #     "VCTK_p239",
-        #     None,
-        #     "en",
-        # ],
-        # [
-        #     "I'm sorry Dave. I'm afraid I can't do that.",
-        #     "VCTK_p258",
-        #     None,
-        #     "en",
-        # ],
-        # [
-        #     "This cake is great. It's so delicious and moist.",
-        #     "VCTK_p244",
-        #     None,
-        #     "en",
-        # ],
-        # [
-        #     "Prior to November 22, 1963.",
-        #     "VCTK_p305",
-        #     None,
-        #     "en",
-        # ],
-                [
-            "thôi thì đành thế chứ biết sao giờ",
-            'VIVOSSPK17',
+        [
+            "Thứ ma thuật đen của họ khiến không ít kẻ thách thức phải khiếp sợ",
+            'Trí_An',
             None,
             'vi'
         ],
         [
             "có một cách này hay lắm không biết anh có muốn nghe không",
-            'VIVOSSPK17',
+            'Duy_Ly',
             None,
             'vi'
         ],
         [
             "mỗi ngày phục vụ hàng trăm suất cơm và chịu lỗ cả trăm triệu đồng",
-            'VIVOSSPK16',
+            'Công_Nghĩa',
             None,
             'vi'
         ],
         [
-            "nhạc sĩ và lực sĩ em chọn ai",
-            'VIVOSSPK15',
+            "Khi tiếng còi mãn cuộc vang lên, những cầu thủ vừa thêm một lần lọt vào trận đấu cuối cùng, bủa ra mọi phía để ăn mừng cùng khán giả. Họ ôm nhau nhảy múa, trượt dài trên mặt cỏ.",
+            'Hộ_Sách_199x',
             None,
             'vi'
         ],
@@ -298,27 +286,27 @@ trainer = Trainer(
 )
 
 # number of samples in train & valid, for vi & en
-vivos_train = 0
+sach_noi_train = 0
 vivos_eval = 0
 vctk_train = 0
 vctk_eval = 0
 
 for sample in train_samples:
     audio_file = sample['audio_file']
-    if "VIVOSSPK" in audio_file:
-        vivos_train += 1
+    if "SACH_NOI" in audio_file:
+        sach_noi_train += 1
     elif "VCTK" in audio_file:
         vctk_train += 1
 
 for sample in eval_samples:
     audio_file = sample['audio_file']
-    if "VIVOSSPK" in audio_file:
+    if "SACH_NOI" in audio_file:
         vivos_eval += 1
     elif "VCTK" in audio_file:
         vctk_eval += 1
 
-print(f'# vivos samples in trainset: {vivos_train}')
-print(f'# vivos samples in eval: {vivos_eval}')
+print(f'# sach noi samples in trainset: {sach_noi_train}')
+print(f'# sach noi samples in eval: {vivos_eval}')
 
 print(f'# vctk samples in trainset: {vctk_train}')
 print(f'# vctk samples in eval: {vctk_eval}')
