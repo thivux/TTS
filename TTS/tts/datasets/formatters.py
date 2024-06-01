@@ -668,3 +668,18 @@ def vivos(root_path, manifest_file, **kwargs):
                 'root_path': '/workspace/code/TTS/recipes/vctk/yourtts/VIVOS'
             })
     return items
+
+
+def sach_noi(root_path, manifest_file, **kwargs):
+    items = []
+    with open(os.path.join(root_path, manifest_file), 'r') as f:
+        for line in f:
+            path, trans, spk, dur = line.strip().split("|")
+            items.append({
+                'audio_file': path,
+                'text': trans,
+                'speaker_name': spk,
+                'language': 'vi',
+                'root_path': '/workspace/code/TTS/recipes/vctk/yourtts/SACH_NOI'
+            })
+    return items
