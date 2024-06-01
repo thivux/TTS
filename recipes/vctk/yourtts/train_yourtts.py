@@ -24,7 +24,7 @@ torch.set_num_threads(24)
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Name of the run for the Trainer
-RUN_NAME = "YourTTS-VI-SACH_NOI-0M-VI-CHAR"
+RUN_NAME = "YourTTS-VI-MIX-0M-VI-CHAR"
 
 # Path where you want to save the models outputs (configs, checkpoints and tensorboard logs)
 # "/raid/coqui/Checkpoints/original-YourTTS/"
@@ -33,13 +33,14 @@ OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 # If you want to do transfer learning and speedup your training you can set here the path to the original YourTTS model
 # RESTORE_PATH = "tts_models--multilingual--multi-dataset--your_tts/model_file.pth.tar" # paper's model, trained on multi languages
 # RESTORE_PATH = "vits_coqui.pth" # 1M VITS LJSpeech
+# TODO: change this 
 RESTORE_PATH = None  # start fresh
 
 # This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
 SKIP_TRAIN_EPOCH = False
 
 # Set here the batch size to be used in training and evaluation
-BATCH_SIZE = 40
+BATCH_SIZE = 60
 
 # Training Sampling rate and the target sampling rate for resampling the downloaded dataset (Note: If you change this you might need to redownload the dataset !!)
 # Note: If you add new datasets, please make sure that the dataset sampling rate and this parameter are matching, otherwise resample your audios
@@ -112,7 +113,7 @@ sach_noi_config = BaseDatasetConfig(
     ]
 )
 # Add here all datasets configs, in our case we just want to train with the VCTK dataset then we need to add just VCTK. Note: If you want to add new datasets, just add them here and it will automatically compute the speaker embeddings (d-vectors) for this new dataset :)
-DATASETS_CONFIG_LIST = [sach_noi_config]
+DATASETS_CONFIG_LIST = [vctk_config, sach_noi_config]
 
 # Extract speaker embeddings
 # SPEAKER_ENCODER_CHECKPOINT_PATH = "https://github.com/coqui-ai/TTS/releases/download/speaker_encoder_model/model_se.pth.tar"
@@ -171,8 +172,8 @@ model_args = VitsArgs(
     # Useful parameters to enable the Speaker Consistency Loss (SCL) described in the paper
     use_speaker_encoder_as_loss=True,
     # Useful parameters to enable multilingual training
-    # use_language_embedding=True,
-    # embedded_language_dim=4,
+    use_language_embedding=True,
+    embedded_language_dim=4,
 )
 
 # General training config, here you can change the batch size and others useful parameters
@@ -229,7 +230,34 @@ config = VitsConfig(
     max_audio_len=SAMPLE_RATE * MAX_AUDIO_LEN_IN_SECONDS,
     mixed_precision=False,
     test_sentences=[
+        # EN
         [
+            "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
+            "VCTK_p277",
+            None,
+            "en",
+        ],
+        [
+            "Be a voice, not an echo.",
+            "VCTK_p239",
+            None,
+            "en",
+        ],
+        [
+            "I'm sorry Dave. I'm afraid I can't do that.",
+            "VCT_p258",
+            None,
+            "en",
+        ],
+        [
+            "This cake is great. It's so delicious and moist.",
+            "VCTK_p244",
+            None,
+            "en",
+        ],
+        # VI
+        [
+
             "Thứ ma thuật đen của họ khiến không ít kẻ thách thức phải khiếp sợ",
             'Trí_An',
             None,
@@ -287,7 +315,7 @@ trainer = Trainer(
 
 # number of samples in train & valid, for vi & en
 sach_noi_train = 0
-vivos_eval = 0
+sach_noi_eval = 0
 vctk_train = 0
 vctk_eval = 0
 
@@ -301,12 +329,12 @@ for sample in train_samples:
 for sample in eval_samples:
     audio_file = sample['audio_file']
     if "SACH_NOI" in audio_file:
-        vivos_eval += 1
+        sach_noi_eval += 1
     elif "VCTK" in audio_file:
         vctk_eval += 1
 
 print(f'# sach noi samples in trainset: {sach_noi_train}')
-print(f'# sach noi samples in eval: {vivos_eval}')
+print(f'# sach noi samples in eval: {sach_noi_eval}')
 
 print(f'# vctk samples in trainset: {vctk_train}')
 print(f'# vctk samples in eval: {vctk_eval}')
