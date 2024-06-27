@@ -33,14 +33,13 @@ OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 # If you want to do transfer learning and speedup your training you can set here the path to the original YourTTS model
 # RESTORE_PATH = "tts_models--multilingual--multi-dataset--your_tts/model_file.pth.tar" # paper's model, trained on multi languages
 # RESTORE_PATH = "vits_coqui.pth" # 1M VITS LJSpeech
-# TODO: change this 
-RESTORE_PATH = None  # start fresh
+RESTORE_PATH = "logs/YourTTS-EN-VCTK-0M-VI-CHAR-430k-May-28-2024_01+25PM-0000000/best_model_507377.pth"  #  start fresh
 
 # This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
 SKIP_TRAIN_EPOCH = False
 
 # Set here the batch size to be used in training and evaluation
-BATCH_SIZE = 60
+BATCH_SIZE = 40
 
 # Training Sampling rate and the target sampling rate for resampling the downloaded dataset (Note: If you change this you might need to redownload the dataset !!)
 # Note: If you add new datasets, please make sure that the dataset sampling rate and this parameter are matching, otherwise resample your audios
@@ -245,7 +244,7 @@ config = VitsConfig(
         ],
         [
             "I'm sorry Dave. I'm afraid I can't do that.",
-            "VCT_p258",
+            "VCTK_p258",
             None,
             "en",
         ],
