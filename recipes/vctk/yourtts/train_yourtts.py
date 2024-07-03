@@ -24,22 +24,20 @@ torch.set_num_threads(24)
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Name of the run for the Trainer
-RUN_NAME = "YourTTS-VI-MIX-0M-VI-CHAR"
+RUN_NAME = "YourTTS-VI-VIN27-SACH-NOI-0M-VI-CHAR-50k"
 
 # Path where you want to save the models outputs (configs, checkpoints and tensorboard logs)
 # "/raid/coqui/Checkpoints/original-YourTTS/"
 OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 
 # If you want to do transfer learning and speedup your training you can set here the path to the original YourTTS model
-# RESTORE_PATH = "tts_models--multilingual--multi-dataset--your_tts/model_file.pth.tar" # paper's model, trained on multi languages
-# RESTORE_PATH = "vits_coqui.pth" # 1M VITS LJSpeech
-RESTORE_PATH = "logs/YourTTS-EN-VCTK-0M-VI-CHAR-430k-May-28-2024_01+25PM-0000000/best_model_507377.pth"  #  start fresh
+RESTORE_PATH = "logs/YourTTS-VI-VIN27-SACH-NOI-0M-VI-CHAR-July-01-2024_09+36PM-51579316/best_model_51840.pth"
 
 # This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
 SKIP_TRAIN_EPOCH = False
 
 # Set here the batch size to be used in training and evaluation
-BATCH_SIZE = 40
+BATCH_SIZE = 40 
 
 # Training Sampling rate and the target sampling rate for resampling the downloaded dataset (Note: If you change this you might need to redownload the dataset !!)
 # Note: If you add new datasets, please make sure that the dataset sampling rate and this parameter are matching, otherwise resample your audios
@@ -82,37 +80,40 @@ vctk_config = BaseDatasetConfig(
     ],  # Ignore the test speakers to full replicate the paper experiment
 )
 
-VIVOS_PATH = os.path.join(CURRENT_PATH, "VIVOS")
-
-# dataset config for one of the pre-defined datasets
-vivos_config = BaseDatasetConfig(
-    path=VIVOS_PATH,
-    meta_file_train="metadata.txt",
-    language='vi',
-    dataset_name="VIVOS",
-    formatter="vivos",
-    ignored_speakers=[
-        'VIVOSDEV01', 'VIVOSDEV02', 'VIVOSDEV03', 'VIVOSDEV04',
-        'VIVOSDEV05', 'VIVOSDEV06', 'VIVOSDEV07', 'VIVOSDEV08',
-        'VIVOSDEV09', 'VIVOSDEV10', 'VIVOSDEV11', 'VIVOSDEV12',
-        'VIVOSDEV13', 'VIVOSDEV14', 'VIVOSDEV15', 'VIVOSDEV16',
-        'VIVOSDEV17', 'VIVOSDEV18', 'VIVOSDEV19'
-    ]
-)
 
 SACH_NOI_PATH = os.path.join(CURRENT_PATH, "SACH_NOI")
 sach_noi_config = BaseDatasetConfig(
     path=SACH_NOI_PATH,
-    meta_file_train="metadata.txt",
+    meta_file_train="metadata_50speakers.txt",
     language='vi',
     dataset_name="SACH_NOI",
     formatter="sach_noi",
     ignored_speakers=[
-        'Tám_Hà', 'Lan_Thi', 'Thanh_Huyền', 'Bách_Diệp', 'Minh_Niệm'
+        "Trí_An",
+        "Hoàn_Lê",
+        "Quỳnh_Hái",
+        "Phạm_Công_Luận",
+        "Dan_Sullivan",
     ]
 )
+
+VIN27_PATH = os.path.join(CURRENT_PATH, "VIN27")
+vin27_config = BaseDatasetConfig(
+    path=VIN27_PATH,
+    meta_file_train="updated_metadata.csv",
+    language='vi',
+    dataset_name="VIN27",
+    formatter="vin27",
+    ignored_speakers=[
+        "quang-nam_0327404", "quang-ngai_3596416", "khanh-hoa_0906516", # center
+        "ho-chi-minh_3540345", "hau-giang_3516917", "ho-chi-minh_0931102", # south
+        "hai-phong_3552914", "hai-phong_3564273", "hai-phong_3650991" # north
+    ]
+)
+
+
 # Add here all datasets configs, in our case we just want to train with the VCTK dataset then we need to add just VCTK. Note: If you want to add new datasets, just add them here and it will automatically compute the speaker embeddings (d-vectors) for this new dataset :)
-DATASETS_CONFIG_LIST = [vctk_config, sach_noi_config]
+DATASETS_CONFIG_LIST = [vin27_config, sach_noi_config]
 
 # Extract speaker embeddings
 # SPEAKER_ENCODER_CHECKPOINT_PATH = "https://github.com/coqui-ai/TTS/releases/download/speaker_encoder_model/model_se.pth.tar"
@@ -229,58 +230,59 @@ config = VitsConfig(
     max_audio_len=SAMPLE_RATE * MAX_AUDIO_LEN_IN_SECONDS,
     mixed_precision=False,
     test_sentences=[
-        # EN
+        # SACH_NOI
         [
-            "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
-            "VCTK_p277",
+            "và thường là hơn cả sự mong đợi. qua thực hành, theo dõi và kiểm chứng từ bản thân cũng như từ nhiều bạn hữu đã tiếp cận và áp dụng phương pháp này.",
+            "Joe_Vitale", 
             None,
-            "en",
+            'vi'
         ],
         [
-            "Be a voice, not an echo.",
-            "VCTK_p239",
+            "nhà bác ấy có nước mưa múc vào đền mẫu, ngọt lịm như đường phèn. ở tình nhỏ, người ta dễ quen nhau lắm. gia đình thúy và gia đình thằng vũ, thằng côn, thằng luyến đều là chỗ thân tình.",
+            "Khắc_Thiệu", 
             None,
-            "en",
+            'vi'
         ],
         [
-            "I'm sorry Dave. I'm afraid I can't do that.",
-            "VCTK_p258",
+            "những nỗi đau ấy tuyệt đối không thể nào xóa bỏ. tuy nhiên, họ vẫn đối diện với nó, và trong cơn vùng vẫy, họ không chỉ cảm nhận mà còn học được nhiều điều.",
+            "Hân_Phạm", 
             None,
-            "en",
+            'vi'
         ],
         [
-            "This cake is great. It's so delicious and moist.",
-            "VCTK_p244",
+            "bạn sẽ tránh được tổn thương, lo lắng mà tập trung vào phương án giải quyết. trẻ lớn không có nghĩa là thời gian phát triển của chúng đã được cố định. vì vậy, trẻ vẫn có thể học hỏi được.",
+            "Thu_Hà", 
             None,
-            "en",
+            'vi'
         ],
-        # VI
+        # VIN27
         [
 
             "Thứ ma thuật đen của họ khiến không ít kẻ thách thức phải khiếp sợ",
-            'Trí_An',
+            'hai-phong_3586631', # north
             None,
             'vi'
         ],
         [
             "có một cách này hay lắm không biết anh có muốn nghe không",
-            'Duy_Ly',
+            'vinh-phuc_3544849', # north
             None,
             'vi'
         ],
         [
             "mỗi ngày phục vụ hàng trăm suất cơm và chịu lỗ cả trăm triệu đồng",
-            'Công_Nghĩa',
+            'ho-chi-minh_3595510', # south
             None,
             'vi'
         ],
         [
             "Khi tiếng còi mãn cuộc vang lên, những cầu thủ vừa thêm một lần lọt vào trận đấu cuối cùng, bủa ra mọi phía để ăn mừng cùng khán giả. Họ ôm nhau nhảy múa, trượt dài trên mặt cỏ.",
-            'Hộ_Sách_199x',
+            'khanh-hoa_3547359', # center
             None,
             'vi'
         ],
     ],
+
     # Enable the weighted sampler
     use_weighted_sampler=True,
     # Ensures that all speakers are seen in the training batch equally no matter how many samples each speaker has
@@ -313,29 +315,29 @@ trainer = Trainer(
 )
 
 # number of samples in train & valid, for vi & en
-sach_noi_train = 0
-sach_noi_eval = 0
-vctk_train = 0
-vctk_eval = 0
+vin27_train = 0
+vin27_eval = 0
+sachnoi_train = 0
+sachnoi_eval = 0
 
 for sample in train_samples:
     audio_file = sample['audio_file']
-    if "SACH_NOI" in audio_file:
-        sach_noi_train += 1
-    elif "VCTK" in audio_file:
-        vctk_train += 1
+    if "vin27_16k" in audio_file:
+        vin27_train += 1
+    elif "SACH_NOI" in audio_file:
+        sachnoi_train += 1
 
 for sample in eval_samples:
     audio_file = sample['audio_file']
-    if "SACH_NOI" in audio_file:
-        sach_noi_eval += 1
-    elif "VCTK" in audio_file:
-        vctk_eval += 1
+    if "vin27_16k" in audio_file:
+        vin27_eval += 1
+    elif "SACH_NOI" in audio_file:
+        sachnoi_eval += 1
 
-print(f'# sach noi samples in trainset: {sach_noi_train}')
-print(f'# sach noi samples in eval: {sach_noi_eval}')
+print(f'# vin27 samples in trainset: {vin27_train}')
+print(f'# vin27 samples in eval: {vin27_eval}')
 
-print(f'# vctk samples in trainset: {vctk_train}')
-print(f'# vctk samples in eval: {vctk_eval}')
+print(f'# sachnoi samples in trainset: {sachnoi_train}')
+print(f'# sachnoi samples in eval: {sachnoi_eval}')
 
 trainer.fit()

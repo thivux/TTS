@@ -684,3 +684,21 @@ def sach_noi(root_path, manifest_file, **kwargs):
                 'root_path': root_path
             })
     return items
+
+
+def vin27(root_path, manifest_file, **kwargs):
+    items = []
+    audio_path = '/lustre/scratch/client/vinai/users/linhnt140/zero-shot-tts/preprocess_audio/vin27_16k'
+    root_path = '/workspace/code/TTS/recipes/vctk/yourtts/VIN27'
+    with open(os.path.join(root_path, manifest_file), 'r') as f:
+        for line in f:
+            file_path, province, speaker, duration,region, gender, normalized_text = line.strip().split("|")
+            items.append({
+                'audio_file': os.path.join(audio_path, file_path),
+                'text': normalized_text.lower(),
+                'speaker_name': speaker,
+                'language': 'vi',
+                'root_path': root_path
+            })
+    return items
+    
