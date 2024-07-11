@@ -24,14 +24,14 @@ torch.set_num_threads(24)
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Name of the run for the Trainer
-RUN_NAME = "YourTTS-VI-VIN27-SACH-NOI-0M-VI-CHAR-50k"
+RUN_NAME = "YourTTS-MIX-VIN27-SACH-NOI-VCTK-430K-VI-CHAR"
 
 # Path where you want to save the models outputs (configs, checkpoints and tensorboard logs)
 # "/raid/coqui/Checkpoints/original-YourTTS/"
 OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 
 # If you want to do transfer learning and speedup your training you can set here the path to the original YourTTS model
-RESTORE_PATH = "logs/YourTTS-VI-VIN27-SACH-NOI-0M-VI-CHAR-July-01-2024_09+36PM-51579316/best_model_51840.pth"
+RESTORE_PATH = "logs/YourTTS-EN-VCTK-0M-VI-CHAR-May-18-2024_12+45AM-8fd90754/checkpoint_430000.pth"
 
 # This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
 SKIP_TRAIN_EPOCH = False
@@ -113,7 +113,7 @@ vin27_config = BaseDatasetConfig(
 
 
 # Add here all datasets configs, in our case we just want to train with the VCTK dataset then we need to add just VCTK. Note: If you want to add new datasets, just add them here and it will automatically compute the speaker embeddings (d-vectors) for this new dataset :)
-DATASETS_CONFIG_LIST = [vin27_config, sach_noi_config]
+DATASETS_CONFIG_LIST = [vin27_config, sach_noi_config, vctk_config]
 
 # Extract speaker embeddings
 # SPEAKER_ENCODER_CHECKPOINT_PATH = "https://github.com/coqui-ai/TTS/releases/download/speaker_encoder_model/model_se.pth.tar"
@@ -281,6 +281,37 @@ config = VitsConfig(
             None,
             'vi'
         ],
+        # VCTK
+        [
+            "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
+            "VCTK_p277",
+            None,
+            "en",
+        ],
+        [
+            "Be a voice, not an echo.",
+            "VCTK_p239",
+            None,
+            "en",
+        ],
+        [
+            "I'm sorry Dave. I'm afraid I can't do that.",
+            "VCTK_p258",
+            None,
+            "en",
+        ],
+        [
+            "This cake is great. It's so delicious and moist.",
+            "VCTK_p244",
+            None,
+            "en",
+        ],
+        [
+            "Prior to November 22, 1963.",
+            "VCTK_p305",
+            None,
+            "en",
+        ]
     ],
 
     # Enable the weighted sampler
@@ -319,6 +350,8 @@ vin27_train = 0
 vin27_eval = 0
 sachnoi_train = 0
 sachnoi_eval = 0
+vctk_train = 0
+vctk_eval = 0
 
 for sample in train_samples:
     audio_file = sample['audio_file']
@@ -326,6 +359,8 @@ for sample in train_samples:
         vin27_train += 1
     elif "SACH_NOI" in audio_file:
         sachnoi_train += 1
+    elif "VCTK" in audio_file: 
+        vctk_train += 1
 
 for sample in eval_samples:
     audio_file = sample['audio_file']
@@ -333,11 +368,16 @@ for sample in eval_samples:
         vin27_eval += 1
     elif "SACH_NOI" in audio_file:
         sachnoi_eval += 1
+    elif "VCTK" in audio_file: 
+        vctk_eval += 1
 
 print(f'# vin27 samples in trainset: {vin27_train}')
 print(f'# vin27 samples in eval: {vin27_eval}')
 
 print(f'# sachnoi samples in trainset: {sachnoi_train}')
 print(f'# sachnoi samples in eval: {sachnoi_eval}')
+
+print(f'# vctk samples in trainset: {vctk_train}')
+print(f'# vctk samples in eval: {vctk_eval}')
 
 trainer.fit()
