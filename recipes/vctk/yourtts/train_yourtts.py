@@ -24,14 +24,14 @@ torch.set_num_threads(24)
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Name of the run for the Trainer
-RUN_NAME = "YourTTS-MIX-VIN27-SACH-NOI-VCTK-430K-VI-CHAR"
+RUN_NAME = "YourTTS-MIX-VIN27-SACH-NOI-VCTK-888K-VI-CHAR"
 
 # Path where you want to save the models outputs (configs, checkpoints and tensorboard logs)
 # "/raid/coqui/Checkpoints/original-YourTTS/"
 OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 
 # If you want to do transfer learning and speedup your training you can set here the path to the original YourTTS model
-RESTORE_PATH = "logs/YourTTS-EN-VCTK-0M-VI-CHAR-May-18-2024_12+45AM-8fd90754/checkpoint_430000.pth"
+RESTORE_PATH = "logs/YourTTS-MIX-VIN27-SACH-NOI-VCTK-430K-VI-CHAR-July-04-2024_06+11PM-8da550a5/best_model_888501.pth"
 
 # This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
 SKIP_TRAIN_EPOCH = False
