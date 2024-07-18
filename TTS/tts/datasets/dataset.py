@@ -1,3 +1,4 @@
+import hashlib
 import base64
 import collections
 import os
@@ -40,7 +41,9 @@ def noise_augment_audio(wav):
 
 def string2filename(string):
     # generate a safe and reversible filename based on a string
-    filename = base64.urlsafe_b64encode(string.encode("utf-8")).decode("utf-8", "ignore")
+    # filename = base64.urlsafe_b64encode(string.encode("utf-8")).decode("utf-8", "ignore")
+    filename = hashlib.sha256(string.encode('utf-8')).hexdigest()
+
     return filename
 
 
