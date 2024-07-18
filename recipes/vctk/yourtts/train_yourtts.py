@@ -64,7 +64,7 @@ vctk_config = BaseDatasetConfig(
     meta_file_train="",
     meta_file_val="",
     path=VCTK_DOWNLOAD_PATH,
-    language="en",
+    language="en-us",
     ignored_speakers=[
         "p261",
         "p225",
@@ -79,7 +79,6 @@ vctk_config = BaseDatasetConfig(
         "p302",
     ],  # Ignore the test speakers to full replicate the paper experiment
 )
-
 
 SACH_NOI_PATH = os.path.join(CURRENT_PATH, "SACH_NOI")
 sach_noi_config = BaseDatasetConfig(
@@ -97,23 +96,24 @@ sach_noi_config = BaseDatasetConfig(
     ]
 )
 
-VIN27_PATH = os.path.join(CURRENT_PATH, "VIN27")
-vin27_config = BaseDatasetConfig(
-    path=VIN27_PATH,
-    meta_file_train="updated_metadata.csv",
-    language='vi',
-    dataset_name="VIN27",
-    formatter="vin27",
-    ignored_speakers=[
-        "quang-nam_0327404", "quang-ngai_3596416", "khanh-hoa_0906516", # center
-        "ho-chi-minh_3540345", "hau-giang_3516917", "ho-chi-minh_0931102", # south
-        "hai-phong_3552914", "hai-phong_3564273", "hai-phong_3650991" # north
-    ]
-)
+# VIN27_PATH = os.path.join(CURRENT_PATH, "VIN27")
+# vin27_config = BaseDatasetConfig(
+#     path=VIN27_PATH,
+#     meta_file_train="updated_metadata.csv",
+#     language='vi',
+#     dataset_name="VIN27",
+#     formatter="vin27",
+#     ignored_speakers=[
+#         "quang-nam_0327404", "quang-ngai_3596416", "khanh-hoa_0906516", # center
+#         "ho-chi-minh_3540345", "hau-giang_3516917", "ho-chi-minh_0931102", # south
+#         "hai-phong_3552914", "hai-phong_3564273", "hai-phong_3650991" # north
+#     ]
+# )
 
 
 # Add here all datasets configs, in our case we just want to train with the VCTK dataset then we need to add just VCTK. Note: If you want to add new datasets, just add them here and it will automatically compute the speaker embeddings (d-vectors) for this new dataset :)
-DATASETS_CONFIG_LIST = [vin27_config, sach_noi_config, vctk_config]
+# DATASETS_CONFIG_LIST = [vin27_config, sach_noi_config, vctk_config]
+DATASETS_CONFIG_LIST = [sach_noi_config, vctk_config]
 
 # Extract speaker embeddings
 # SPEAKER_ENCODER_CHECKPOINT_PATH = "https://github.com/coqui-ai/TTS/releases/download/speaker_encoder_model/model_se.pth.tar"
@@ -201,28 +201,15 @@ config = VitsConfig(
     save_checkpoints=True,
     target_loss="loss_1",  # NOTE: best ckpt is based on this metric
     print_eval=False,
-    use_phonemes=False,
-    phonemizer="espeak",
-    phoneme_language="en",
+    use_phonemes=True,
+    phonemizer="multi_phonimizer",
+    phoneme_language=None,
     compute_input_seq_cache=True,
     add_blank=True,
     text_cleaner="multilingual_cleaners",
     # lr_gen=5e-5,
     # lr_disc=5e-5,
-    characters=CharactersConfig(
-        characters_class="TTS.tts.models.vits.VitsCharacters",
-        pad="_",
-        eos="&",
-        bos="*",
-        blank=None,
-        # characters="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\u00af\u00b7\u00df\u00e0\u00e1\u00e2\u00e3\u00e4\u00e6\u00e7\u00e8\u00e9\u00ea\u00eb\u00ec\u00ed\u00ee\u00ef\u00f1\u00f2\u00f3\u00f4\u00f5\u00f6\u00f9\u00fa\u00fb\u00fc\u00ff\u0101\u0105\u0107\u0113\u0119\u011b\u012b\u0131\u0142\u0144\u014d\u0151\u0153\u015b\u016b\u0171\u017a\u017c\u01ce\u01d0\u01d2\u01d4\u0430\u0431\u0432\u0433\u0434\u0435\u0436\u0437\u0438\u0439\u043a\u043b\u043c\u043d\u043e\u043f\u0440\u0441\u0442\u0443\u0444\u0445\u0446\u0447\u0448\u0449\u044a\u044b\u044c\u044d\u044e\u044f\u0451\u0454\u0456\u0457\u0491\u2013!'(),-.:;? ",
-        characters="êĩlốừũễíẫsỷửòẵmợpỳàọịbẳểgônõặổằỹụfóqrìảẽớuveạaýậèếâỵộứoãùữấéệởzỏiẹăưồẻủcềáxỡkúựắydỉơhđầjẩwtỗờ ",
-        punctuations="!'(),-.:;? ",
-        phonemes="",
-        is_unique=True,
-        is_sorted=True,
-    ),
-    phoneme_cache_path=None,
+    phoneme_cache_path="./PHONE",
     precompute_num_workers=12,
     start_by_longest=True,
     datasets=DATASETS_CONFIG_LIST,
@@ -286,31 +273,31 @@ config = VitsConfig(
             "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
             "VCTK_p277",
             None,
-            "en",
+            "en-us",
         ],
         [
             "Be a voice, not an echo.",
             "VCTK_p239",
             None,
-            "en",
+            "en-us",
         ],
         [
             "I'm sorry Dave. I'm afraid I can't do that.",
             "VCTK_p258",
             None,
-            "en",
+            "en-us",
         ],
         [
             "This cake is great. It's so delicious and moist.",
             "VCTK_p244",
             None,
-            "en",
+            "en-us",
         ],
         [
             "Prior to November 22, 1963.",
             "VCTK_p305",
             None,
-            "en",
+            "en-us",
         ]
     ],
 
@@ -331,7 +318,44 @@ train_samples, eval_samples = load_tts_samples(
     eval_split_size=config.eval_split_size,
 )
 
+# # ========== NEW CODE ===================
+# from TTS.tts.utils.languages import LanguageManager
+# from TTS.tts.utils.speakers import SpeakerManager
+# from TTS.tts.utils.text.tokenizer import TTSTokenizer
+# from TTS.utils.audio import AudioProcessor
 
+# # force the convertion of the custom characters to a config attribute
+# config.from_dict(config.to_dict())
+
+# # init audio processor
+# ap = AudioProcessor(**config.audio.to_dict())
+
+# # init speaker manager for multi-speaker training
+# # it maps speaker-id to speaker-name in the model and data-loader
+# speaker_manager = SpeakerManager()
+# speaker_manager.set_ids_from_data(train_samples + eval_samples, parse_key="speaker_name")
+# config.model_args.num_speakers = speaker_manager.num_speakers
+
+# language_manager = LanguageManager(config=config)
+# config.model_args.num_languages = language_manager.num_languages
+
+# # INITIALIZE THE TOKENIZER
+# # Tokenizer is used to convert text to sequences of token IDs.
+# # config is updated with the default characters if not defined in the config.
+# tokenizer, config = TTSTokenizer.init_from_config(config)
+
+# # init model
+# model = Vits(config, ap, tokenizer, speaker_manager, language_manager)
+
+# # init the trainer and 🚀
+# trainer = Trainer(
+#     TrainerArgs(), config, output_path=OUT_PATH, model=model, train_samples=train_samples, eval_samples=eval_samples
+# )
+
+# ========== NEW CODE ===================
+
+
+# ============== OLD CODE ===================
 # Init the model
 model = Vits.init_from_config(config)
 
@@ -344,6 +368,8 @@ trainer = Trainer(
     train_samples=train_samples,
     eval_samples=eval_samples,
 )
+
+# ============== OLD CODE ===================
 
 # number of samples in train & valid, for vi & en
 vin27_train = 0
