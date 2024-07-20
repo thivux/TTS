@@ -65,7 +65,7 @@ def create_audio_csv(root_dir, csv_file):
         writer = csv.writer(f)
         writer.writerow(['file_path', 'province', 'speaker', 'duration'])
 
-        with ThreadPoolExecutor(max_workers=16) as executor:
+        with ThreadPoolExecutor(max_workers=32) as executor:
             futures = []
             for filepath in tqdm(wav_files, total=len(wav_files), desc="Processing files"):
                 speaker_id = os.path.basename(os.path.dirname(filepath))
@@ -260,14 +260,14 @@ def add_transcript_gender():
     
 if __name__ == "__main__":
     # create audio_data.csv (relative_file_path, province, province_speakerid, duration)
-    # root_directory = '/lustre/scratch/client/vinai/users/linhnt140/zero-shot-tts/preprocess_audio/vin27_16k'
-    # csv_file_path = './VIN27/audio_data.csv'
-    # create_audio_csv(root_directory, csv_file_path)
+    root_directory = '/lustre/scratch/client/vinai/users/linhnt140/zero-shot-tts/preprocess_audio/vin27_16k'
+    csv_file_path = './VIN27/audio_data.csv'
+    create_audio_csv(root_directory, csv_file_path)
 
     # add region (north, central, south) to audio_data.csv -> audio_data_region.csv
-    # csv_file_path = './VIN27/audio_data.csv'
-    # csv_file_with_region = './VIN27/audio_data_region.csv'
-    # add_region_column(csv_file_path, csv_file_with_region)
+    csv_file_path = './VIN27/audio_data.csv'
+    csv_file_with_region = './VIN27/audio_data_region.csv'
+    add_region_column(csv_file_path, csv_file_with_region)
 
     # seperate audio_data_region.csv based on region
     # input_csv_file = './VIN27/audio_data_region.csv'
@@ -282,35 +282,35 @@ if __name__ == "__main__":
     #     group_and_sort_by_speaker(input_csv, output_csv)
 
     # get top 150 speakers for each region
-    region2n_speakers = {
-        'north': 150,
-        'south': 75,
-        'center': 125 
-    }
-    region_dir = './VIN27'
-    for region in ['north', 'south', 'center']:
-        input_csv = os.path.join(region_dir, f"sorted_{region}.csv")
-        top_n = 100
-        top_speakers = get_top_speakers(input_csv, top_n=region2n_speakers[region])
+    # region2n_speakers = {
+    #     'north': 150,
+    #     'south': 75,
+    #     'center': 125 
+    # }
+    # region_dir = './VIN27'
+    # for region in ['north', 'south', 'center']:
+    #     input_csv = os.path.join(region_dir, f"sorted_{region}.csv")
+    #     top_n = 100
+    #     top_speakers = get_top_speakers(input_csv, top_n=region2n_speakers[region])
 
-        output_file = os.path.join(region_dir, f"top_{region2n_speakers[region]}_speakers_{region}.txt")
-        with open(output_file, 'w') as f:
-            for speaker in top_speakers:
-                f.write(f"{speaker}\n")
-        print(f"Region: {region}, Top 150 speaker names saved to: {output_file}")
+    #     output_file = os.path.join(region_dir, f"top_{region2n_speakers[region]}_speakers_{region}.txt")
+    #     with open(output_file, 'w') as f:
+    #         for speaker in top_speakers:
+    #             f.write(f"{speaker}\n")
+    #     print(f"Region: {region}, Top 150 speaker names saved to: {output_file}")
 
     # create metadata.csv for each region
-    region_dir = './VIN27'
+    # region_dir = './VIN27'
 
-    for region in ['north', 'south', 'center']:
-        top_speakers_file = os.path.join(region_dir, f"top_{region2n_speakers[region]}_speakers_{region}.txt")
-        create_region_metadata(region, region_dir, top_speakers_file)
+    # for region in ['north', 'south', 'center']:
+    #     top_speakers_file = os.path.join(region_dir, f"top_{region2n_speakers[region]}_speakers_{region}.txt")
+    #     create_region_metadata(region, region_dir, top_speakers_file)
 
     # concat metadata into 1 file
-    region_dir = './VIN27'
-    output_file = './VIN27/concatenated_metadata.csv'
-    concat_metadata_files(region_dir, output_file)
+    # region_dir = './VIN27'
+    # output_file = './VIN27/concatenated_metadata.csv'
+    # concat_metadata_files(region_dir, output_file)
 
     # add transcript and gender to the metadata list
-    add_transcript_gender()
+    # add_transcript_gender()
     
