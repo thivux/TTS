@@ -1,4 +1,5 @@
 import json
+import pandas as pd
 import os
 from tqdm import tqdm
 import pandas as pd
@@ -326,7 +327,7 @@ def filter_files_not_cal_dur(root_dir, csv_file_path):
     #         f.write(f"{file}\n")
 
 
-def filter_short_audio(metafile, threshold):
+def filter_short_audio(root_directory, metafile, threshold):
     # Load the metadata file
     df = pd.read_csv(metafile, delimiter=',', names=["file_path", "province", 'speaker', 'duration'])
 
@@ -334,7 +335,7 @@ def filter_short_audio(metafile, threshold):
     df = df[df['duration'] >= threshold]
 
     # Save the filtered metadata
-    output_file = metafile.replace('.csv', f'_filtered_{threshold}s_run_again.csv')
+    output_file = metafile.replace('.csv', f'_filtered_{threshold}s.csv')
     df.to_csv(output_file, index=False, sep='|')
     print(f"Filtered metadata saved to: {output_file}")
     
@@ -369,73 +370,24 @@ def create_json_file(root_directory, input_csv, output_json):
 
 
 if __name__ == "__main__":
+    # get short audio files
+    file1 = 'VIN27/combined_audio_data.csv'
+    file2 = 'VIN27/combined_audio_data_filtered_3s.csv'
+    output_file = 'VIN27/short_files.csv'
+    full_df = pd.read_csv(file1, names=['path', 'province', 'speaker', 'duration'])
+    short = full_df[full_df['duration'] <= 3]
+    short.to_csv(output_file, index=False, sep='|', header=False)
 
-    # check_binary_lines('VIN27/combined_audio_data_fixed.csv')
-
-    # create audio_data.csv (relative_file_path, province, province_speakerid, duration)
     # root_directory = '/lustre/scratch/client/vinai/users/linhnt140/zero-shot-tts/preprocess_audio/vin27_16k_denoised'
-    # input_files_path = 'VIN27/not_processed_files.txt'
-    # output_file_path = 'VIN27/audio_data3.csv'
-    # create_audio_csv(root_directory, input_files_path, output_file_path)
     
-    # filter > 3s audio files
-    metafile = "VIN27/combined_audio_data.csv"
-    filtered_length_path = filter_short_audio(metafile, threshold=3)
-    # print(f'filtered_length_path: {filtered_length_path}')
-    # filtered_length_path = 'VIN27/combined_audio_data_filtered_3s.csv'
+    # # filter > 3s audio files
     # filtered_length_path = 'VIN27/short_files.csv'
 
-    # filter files that are not calculated duration
-    # csv_file_path = './VIN27/audio_data.csv'
-    # filter_files_not_cal_dur(root_directory, csv_file_path)
-
-    # add region (north, central, south) to audio_data.csv -> audio_data_region.csv
+    # # add region (north, central, south) to audio_data.csv -> audio_data_region.csv
     # csv_file_with_region = './VIN27/short_files_region.csv'
     # add_region_column(filtered_length_path, csv_file_with_region)
 
-    # # seperate audio_data_region.csv based on region => o can 
-    # input_csv_file = './VIN27/audio_data_region.csv'
-    # output_directory = './VIN27'
-    # separate_csv_by_region(input_csv_file, output_directory)
-
-    # for each region, sort speaker by duration descendingly => o can
-    # region_dir = './VIN27'
-    # for region in ['north', 'south', 'center']:
-    #     input_csv = os.path.join(region_dir, f"{region}.csv")
-    #     output_csv = os.path.join(region_dir, f"sorted_{region}.csv")
-    #     group_and_sort_by_speaker(input_csv, output_csv)
-
-    # get top 150 speakers for each region => 0 can 
-    # region2n_speakers = {
-    #     'north': 150,
-    #     'south': 75,
-    #     'center': 125
-    # }
-    # region_dir = './VIN27'
-    # for region in ['north', 'south', 'center']:
-    #     input_csv = os.path.join(region_dir, f"sorted_{region}.csv")
-    #     top_n = 100
-    #     top_speakers = get_top_speakers(input_csv, top_n=region2n_speakers[region])
-
-    #     output_file = os.path.join(region_dir, f"top_{region2n_speakers[region]}_speakers_{region}.txt")
-    #     with open(output_file, 'w') as f:
-    #         for speaker in top_speakers:
-    #             f.write(f"{speaker}\n")
-    #     print(f"Region: {region}, Top 150 speaker names saved to: {output_file}")
-
-    # create metadata.csv for each region
-    # region_dir = './VIN27'
-
-    # for region in ['north', 'south', 'center']:
-    #     top_speakers_file = os.path.join(region_dir, f"top_{region2n_speakers[region]}_speakers_{region}.txt")
-    #     create_region_metadata(region, region_dir, top_speakers_file)
-
-    # concat metadata into 1 file
-    # region_dir = './VIN27'
-    # output_file = './VIN27/concatenated_metadata.csv'
-    # concat_metadata_files(region_dir, output_file)
-
-    # add transcript and gender to the metadata list
+    # # add transcript and gender to the metadata list
     # add_transcript_gender()
     
     # # create json file for phonemize_encode

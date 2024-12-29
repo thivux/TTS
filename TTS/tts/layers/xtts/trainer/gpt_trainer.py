@@ -381,7 +381,7 @@ class GPTTrainer(BaseTTS):
                 loader = DataLoader(
                     dataset,
                     batch_size=config.eval_batch_size if is_eval else config.batch_size,
-                    shuffle=False,
+                    shuffle=True,
                     drop_last=False,
                     collate_fn=dataset.collate_fn,
                     num_workers=config.num_eval_loader_workers if is_eval else config.num_loader_workers,
@@ -482,11 +482,39 @@ class GPTTrainer(BaseTTS):
     ):  # pylint: disable=unused-argument, disable=W0201, disable=W0102, redefined-builtin
         """Load the model checkpoint and setup for training or inference"""
 
-        state = self.xtts.get_compatible_checkpoint_state_dict(checkpoint_path)
+        state = self.xtts.get_compatible_checkpoint_state_dict(checkpoint_path) # old size
 
         # load the model weights
-        self.xtts.load_state_dict(state, strict=strict)
+        # Filter and resize the state dict
+        model_state_dict = self.xtts.state_dict() # new size with extended vocab
 
+        filtered_state_dict = {}
+        for k, v in state.items():
+            if k in model_state_dict:
+                if v.size() == model_state_dict[k].size():
+                    filtered_state_dict[k] = v
+                elif (k == 'gpt.text_embedding.weight' or k == 'gpt.text_head.weight') and v.size(0) < model_state_dict[k].size(0):
+                    print(f'Resizing {k}')
+                    # Handle the vocab size increase for embedding or weight matrices (2D tensors)
+                    new_size = model_state_dict[k].size(0)
+                    embedding_dim = model_state_dict[k].size(1)
+                    new_param = torch.nn.Parameter(torch.empty(new_size, embedding_dim))
+                    new_param.data[:v.size(0)] = v.data
+                    new_param.data[v.size(0):] = torch.nn.init.normal_(torch.empty(new_size - v.size(0), embedding_dim))
+                    filtered_state_dict[k] = new_param
+                elif k == 'gpt.text_head.bias' and v.size(0) < model_state_dict[k].size(0):
+                    print(f'Resizing {k}')
+                    # Handle the vocab size increase for bias vectors (1D tensors)
+                    new_size = model_state_dict[k].size(0)
+                    new_param = torch.nn.Parameter(torch.empty(new_size))
+                    new_param.data[:v.size(0)] = v.data
+                    new_param.data[v.size(0):] = torch.nn.init.normal_(torch.empty(new_size - v.size(0)))
+                    filtered_state_dict[k] = new_param
+                else:
+                    print(f"error: Skipping parameter {k} due to size mismatch: {v.size()} vs {model_state_dict[k].size()}")
+
+        # self.xtts.load_state_dict(state, strict=strict)
+        self.xtts.load_state_dict(filtered_state_dict, strict=strict)
         if eval:
             self.xtts.gpt.init_gpt_for_inference(kv_cache=self.args.kv_cache, use_deepspeed=False)
             self.eval()

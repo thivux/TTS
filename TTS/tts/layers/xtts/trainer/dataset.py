@@ -66,6 +66,7 @@ class XTTSDataset(torch.utils.data.Dataset):
 
         self.samples = samples
         if not is_eval:
+            print(f'training set has {len(self.samples)} samples')
             random.seed(config.training_seed)
             # random.shuffle(self.samples)
             random.shuffle(self.samples)
@@ -77,12 +78,17 @@ class XTTSDataset(torch.utils.data.Dataset):
             self.check_eval_samples()
 
     def check_eval_samples(self):
+        import traceback
+
         print(" > Filtering invalid eval samples!!")
+        print(f'before filtering there are {len(self.samples)} samples')
         new_samples = []
         for sample in self.samples:
             try:
-                tseq, _, wav, _, _, _ = self.load_item(sample)
-            except:
+                tseq, _, wav, _, _, _ = self.load_item(sample) # load text sequence and wav
+            except Exception as e:
+                print(f'dcu error loading {sample["audio_file"]} {e}')
+                traceback.print_exc()
                 continue
             # Basically, this audio file is nonexistent or too long to be supported by the dataset.
             if (
@@ -90,6 +96,11 @@ class XTTSDataset(torch.utils.data.Dataset):
                 or (self.max_wav_len is not None and wav.shape[-1] > self.max_wav_len)
                 or (self.max_text_len is not None and tseq.shape[0] > self.max_text_len)
             ):
+                print(f'dcu error loading {sample["audio_file"]}: ranges are out of bounds; {wav.shape[-1]}, {tseq.shape[0]}')
+                print(f'tseq: {tseq}')
+                print(f'tseq.shape: {tseq.shape}')
+                print(f'wav.shape: {wav.shape}')
+                breakpoint()
                 continue
             new_samples.append(sample)
         self.samples = new_samples
@@ -100,7 +111,7 @@ class XTTSDataset(torch.utils.data.Dataset):
         tokens = torch.IntTensor(tokens)
         assert not torch.any(tokens == 1), f"UNK token found in {text} -> {self.tokenizer.decode(tokens)}"
         # The stop token should always be sacred.
-        assert not torch.any(tokens == 0), f"Stop token found in {text}"
+        # assert not torch.any(tokens == 0), f"Stop token found in {text}"
         return tokens
 
     def load_item(self, sample):
@@ -110,9 +121,9 @@ class XTTSDataset(torch.utils.data.Dataset):
         wav = load_audio(audiopath, self.sample_rate)
         if text is None or len(text.strip()) == 0:
             raise ValueError
-        if wav is None or wav.shape[-1] < (0.5 * self.sample_rate):
-            # Ultra short clips are also useless (and can cause problems within some models).
-            raise ValueError
+        # if wav is None or wav.shape[-1] < (0.5 * self.sample_rate):
+        #     # Ultra short clips are also useless (and can cause problems within some models).
+        #     raise ValueError
 
         if self.use_masking_gt_prompt_approach:
             # get a slice from GT to condition the model

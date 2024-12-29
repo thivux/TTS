@@ -8,7 +8,7 @@ from TTS.bin.resample import resample_files
 from TTS.config.shared_configs import BaseDatasetConfig
 from TTS.tts.configs.vits_config import VitsConfig
 from TTS.tts.datasets import load_tts_samples
-from TTS.tts.models.vits import CharactersConfig, Vits, VitsArgs, VitsAudioConfig
+from TTS.tts.models.vits import Vits, VitsArgs, VitsAudioConfig
 from TTS.utils.downloaders import download_vctk
 
 torch.set_num_threads(24)
@@ -24,14 +24,14 @@ torch.set_num_threads(24)
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Name of the run for the Trainer
-RUN_NAME = "YourTTS-MIX-VIN27-SACH-NOI-PHONE-TEST"
+RUN_NAME = "YourTTS-MIX-VIN27-SACH-NOI-PHONE-TEST-MULTIGPU"
 
 # Path where you want to save the models outputs (configs, checkpoints and tensorboard logs)
 # "/raid/coqui/Checkpoints/original-YourTTS/"
 OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
 
 # If you want to do transfer learning and speedup your training you can set here the path to the original YourTTS model
-RESTORE_PATH = "logs/YourTTS-MIX-VIN27-SACH-NOI-VCTK-888K-VI-CHAR-July-12-2024_03+22PM-0000000/checkpoint_960831.pth"
+RESTORE_PATH = None 
 
 # This paramter is useful to debug, it skips the training epochs and just do the evaluation  and produce the test sentences
 SKIP_TRAIN_EPOCH = False
@@ -80,21 +80,21 @@ vctk_config = BaseDatasetConfig(
     ],  # Ignore the test speakers to full replicate the paper experiment
 )
 
-SACH_NOI_PATH = os.path.join(CURRENT_PATH, "SACH_NOI")
-sach_noi_config = BaseDatasetConfig(
-    path=SACH_NOI_PATH,
-    meta_file_train="metadata_50speakers.txt",
-    language='vi',
-    dataset_name="SACH_NOI",
-    formatter="sach_noi",
-    ignored_speakers=[
-        "Trí_An",
-        "Hoàn_Lê",
-        "Quỳnh_Hái",
-        "Phạm_Công_Luận",
-        "Dan_Sullivan",
-    ]
-)
+# SACH_NOI_PATH = os.path.join(CURRENT_PATH, "SACH_NOI")
+# sach_noi_config = BaseDatasetConfig(
+#     path=SACH_NOI_PATH,
+#     meta_file_train="metadata_50speakers.txt",
+#     language='vi',
+#     dataset_name="SACH_NOI",
+#     formatter="sach_noi",
+#     ignored_speakers=[
+#         "Trí_An",
+#         "Hoàn_Lê",
+#         "Quỳnh_Hái",
+#         "Phạm_Công_Luận",
+#         "Dan_Sullivan",
+#     ]
+# )
 
 # VIN27_PATH = os.path.join(CURRENT_PATH, "VIN27")
 # vin27_config = BaseDatasetConfig(
@@ -242,32 +242,32 @@ config = VitsConfig(
             None,
             'vi'
         ],
-        # VIN27
-        [
+        # # VIN27
+        # [
 
-            "Thứ ma thuật đen của họ khiến không ít kẻ thách thức phải khiếp sợ",
-            'hai-phong_3586631', # north
-            None,
-            'vi'
-        ],
-        [
-            "có một cách này hay lắm không biết anh có muốn nghe không",
-            'vinh-phuc_3544849', # north
-            None,
-            'vi'
-        ],
-        [
-            "mỗi ngày phục vụ hàng trăm suất cơm và chịu lỗ cả trăm triệu đồng",
-            'ho-chi-minh_3595510', # south
-            None,
-            'vi'
-        ],
-        [
-            "Khi tiếng còi mãn cuộc vang lên, những cầu thủ vừa thêm một lần lọt vào trận đấu cuối cùng, bủa ra mọi phía để ăn mừng cùng khán giả. Họ ôm nhau nhảy múa, trượt dài trên mặt cỏ.",
-            'khanh-hoa_3547359', # center
-            None,
-            'vi'
-        ],
+        #     "Thứ ma thuật đen của họ khiến không ít kẻ thách thức phải khiếp sợ",
+        #     'hai-phong_3586631', # north
+        #     None,
+        #     'vi'
+        # ],
+        # [
+        #     "có một cách này hay lắm không biết anh có muốn nghe không",
+        #     'vinh-phuc_3544849', # north
+        #     None,
+        #     'vi'
+        # ],
+        # [
+        #     "mỗi ngày phục vụ hàng trăm suất cơm và chịu lỗ cả trăm triệu đồng",
+        #     'ho-chi-minh_3595510', # south
+        #     None,
+        #     'vi'
+        # ],
+        # [
+        #     "Khi tiếng còi mãn cuộc vang lên, những cầu thủ vừa thêm một lần lọt vào trận đấu cuối cùng, bủa ra mọi phía để ăn mừng cùng khán giả. Họ ôm nhau nhảy múa, trượt dài trên mặt cỏ.",
+        #     'khanh-hoa_3547359', # center
+        #     None,
+        #     'vi'
+        # ],
         # VCTK
         [
             "It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",

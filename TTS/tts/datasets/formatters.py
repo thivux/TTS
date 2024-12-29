@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import xml.etree.ElementTree as ET
 from glob import glob
 from pathlib import Path
@@ -7,6 +8,7 @@ from typing import List
 
 import pandas as pd
 from tqdm import tqdm
+import time
 
 ########################
 # DATASETS
@@ -625,38 +627,45 @@ def vivos(root_path, manifest_file, **kwargs):
 
 
 def sach_noi(root_path, manifest_file, **kwargs):
+    metadata_folder = '/lustre/scratch/client/vinai/users/thivt1/code/TTS/recipes/ljspeech/xtts_v2/SACH_NOI'
+    with open(os.path.join(metadata_folder, manifest_file), 'r') as f:
+        data = json.load(f)
+    
     items = []
-    root_path = '/workspace/code/TTS/recipes/vctk/yourtts/SACH_NOI'
-    with open(os.path.join(root_path, manifest_file), 'r') as f:
-        for line in f:
-            path, trans, spk, dur = line.strip().split("|")
-            items.append({
-                'audio_file': os.path.join(root_path, path),
-                'text': trans,
-                'speaker_name': spk,
-                'language': 'vi',
-                'root_path': root_path
-            })
+    for sample in data: 
+        path = sample['path']
+        # path = path.replace("lustre/scratch/client/vinai/users/thivt1", 'workspace').replace(".wav", '_22k.wav')
+        path = path.replace(".wav", '_22k.wav')
+        items.append({
+            'audio_file': path,
+            'text': sample['transcript'].lower(),
+            'speaker_name': sample['speaker'],
+            'language': 'vi',
+            'root_path': root_path
+        })
+        
     return items
 
 
 def vin27(root_path, manifest_file, **kwargs):
-    from itertools import islice
     items = []
-    audio_path = '/lustre/scratch/client/vinai/users/linhnt140/zero-shot-tts/preprocess_audio/vin27_16k'
-    root_path = '/workspace/code/TTS/recipes/vctk/yourtts/VIN27'
-    speaker_set = set()
-    with open(os.path.join(root_path, manifest_file), 'r') as f:
-        for line in islice(f, 100):
-            file_path, province, speaker, duration, region, gender, normalized_text = line.strip().split("|")
-            speaker_set.add(speaker)
-            items.append({
-                'audio_file': os.path.join(audio_path, file_path),
-                'text': normalized_text.lower(),
-                'speaker_name': speaker,
-                'language': 'vi',
-                'root_path': root_path
-            })
+    metadata_folder = '/lustre/scratch/client/vinai/users/thivt1/code/TTS/recipes/ljspeech/xtts_v2/VIN27'
+    with open(os.path.join(metadata_folder, manifest_file), 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    items = []
+    for sample in data: 
+        start = time.time()
+        path = sample['path']
+        items.append({
+            'audio_file': path,
+            'text': sample['transcript'].lower(),
+            'speaker_name': sample['speaker'],
+            'language': 'vi',
+            'root_path': root_path
+        })
+        end = time.time()
+        print(f'loading 1 sample takes {end - start} seconds')
     return items
     
 
@@ -685,7 +694,7 @@ def vctk(root_path, meta_files=None, wavs_path="wav48_silence_trimmed", mic="mic
     items = []
     meta_files = glob(f"{os.path.join(root_path,'txt')}/**/*.txt", recursive=True)
     speaker_set = set()
-    for meta_file in meta_files[:100]:
+    for meta_file in meta_files:
         _, speaker_id, txt_file = os.path.relpath(meta_file, root_path).split(os.sep)
         file_id = txt_file.split(".")[0]
         # ignore speakers

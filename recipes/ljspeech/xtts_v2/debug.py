@@ -586,13 +586,12 @@ def korean_transliterate(text):
     return r.translit(text)
 
 
-# DEFAULT_VOCAB_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/tokenizer.json")
-DEFAULT_VOCAB_FILE = '/home/thivux/code/vinai/TTS/recipes/ljspeech/xtts_v2/vocab.json'
+DEFAULT_VOCAB_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/tokenizer.json")
 
 
 class VoiceBpeTokenizer:
     def __init__(self, vocab_file=None):
-        self.tokenizer = None
+        self.tokenizer: Tokenizer = None
         if vocab_file is not None:
             self.tokenizer = Tokenizer.from_file(vocab_file)
         self.char_limits = {
@@ -612,7 +611,6 @@ class VoiceBpeTokenizer:
             "ja": 71,
             "hu": 224,
             "ko": 95,
-            "vi": 450,
         }
 
     @cached_property
@@ -642,7 +640,7 @@ class VoiceBpeTokenizer:
             # @manmay will implement this
             txt = basic_cleaners(txt)
         elif lang == 'vi': 
-            txt = basic_cleaners(txt)
+            return txt 
         else:
             raise NotImplementedError(f"Language '{lang}' is not supported.")
         return txt
@@ -651,14 +649,15 @@ class VoiceBpeTokenizer:
         lang = lang.split("-")[0]  # remove the region
         self.check_input_length(txt, lang)
         txt = self.preprocess_text(txt, lang)
-        # print(txt)
-        txt = txt.replace(" ", "[SPACE]")
-        # print(txt)
-        # add START and STOP token
-        txt = f"[START]{txt}[STOP]"
         lang = "zh-cn" if lang == "zh" else lang
         txt = f"[{lang}]{txt}"
-        # print(txt)
+        txt = txt.replace(" ", "[SPACE]")
+        encoded = self.tokenizer.encode(txt)
+        print(f'encoded text: {encoded}')
+        tokens = encoded.ids
+        print(f'tokens: {tokens}')
+        decoded = self.tokenizer.decode(tokens)
+        print(f'decoded text: {decoded}')
         return self.tokenizer.encode(txt).ids
 
     def decode(self, seq):
@@ -668,7 +667,6 @@ class VoiceBpeTokenizer:
         txt = txt.replace("[SPACE]", " ")
         txt = txt.replace("[STOP]", "")
         txt = txt.replace("[UNK]", "")
-        txt = txt.replace("[START]", "")
         return txt
 
     def __len__(self):
@@ -851,14 +849,10 @@ if __name__ == "__main__":
     # test_expand_numbers_multilingual()
     # test_abbreviations_multilingual()
     # test_symbols_multilingual()
-    tokenizer = VoiceBpeTokenizer(vocab_file=DEFAULT_VOCAB_FILE)
-    print(len(tokenizer))
-    tokens = tokenizer.encode("tại sao lại như vậy? tôi cũng đéo biết nữa.", lang='vi')
+    tokenizer = VoiceBpeTokenizer(vocab_file="/home/thivux/code/vinai/TTS/recipes/ljspeech/xtts_v2/run/training/vocab.json")
+    # text = "this is an english sentence"
+    # lang = 'en'
+    text = "tiếng việt nè"
+    lang = 'vi'
+    tokens = tokenizer.encode(text, lang)
     print(tokens)
-    decoded_text = tokenizer.decode(tokens)
-    print(decoded_text)
-    print('============================')
-    tokens = torch.IntTensor(tokens)
-    print(torch.any(tokens == 1)) # check UNK token
-    print(torch.any(tokens == 0)) # check STOP token
-

@@ -8,16 +8,18 @@ from TTS.tts.layers.xtts.trainer.gpt_trainer import GPTArgs, GPTTrainer, GPTTrai
 from TTS.utils.manage import ModelManager
 
 # Logging parameters
-RUN_NAME = "GPT_XTTS_v2.0_FT_SACHNOI"
+RUN_NAME = "SACHNOI_FINETUNE_500h_360k_5k"
 PROJECT_NAME = "XTTS_trainer"
 DASHBOARD_LOGGER = "tensorboard"
 LOGGER_URI = None
 
 # Set here the path that the checkpoints will be saved. Default: ./run/training/
-OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "run", "training")
+OUT_PATH = os.path.join(os.path.dirname(
+    os.path.abspath(__file__)), "run", "training")
 
 # Training Parameters
-OPTIMIZER_WD_ONLY_ON_WEIGHTS = True  # for multi-gpu training please make it False
+# for multi-gpu training please make it False
+OPTIMIZER_WD_ONLY_ON_WEIGHTS = True
 START_WITH_EVAL = True  # if True it will star with evaluation
 BATCH_SIZE = 4  # set here the batch size
 GRAD_ACUMM_STEPS = 84  # set here the grad accumulation steps
@@ -43,13 +45,16 @@ GRAD_ACUMM_STEPS = 84  # set here the grad accumulation steps
 #     formatter="vin27",
 # )
 
-SACH_NOI_PATH = "/workspace/code/oneshot"
+SACH_NOI_PATH = "/lustre/scratch/client/vinai/users/thivt1/code/oneshot"
 sach_noi_config = BaseDatasetConfig(
     path=SACH_NOI_PATH,
-    meta_file_train="sach_noi_train.json", # sach noi does not have dev set
+    # meta_file_train="/lustre/scratch/client/vinai/users/thivt1/code/oneshot/step20_train_xtts.csv",
+    # meta_file_val="/lustre/scratch/client/vinai/users/thivt1/code/oneshot/step20_val_xtts.csv",
+    meta_file_train='/lustre/scratch/client/vinai/users/thivt1/code/TTS/recipes/ljspeech/xtts_v2/SACHNOI/train_500h.csv',
+    meta_file_val='/lustre/scratch/client/vinai/users/thivt1/code/TTS/recipes/ljspeech/xtts_v2/SACHNOI/validation_500h.csv',
     language='vi',
     dataset_name="SACH_NOI",
-    formatter="sach_noi",
+    formatter="coqui",
 )
 
 # Add here the configs of the datasets
@@ -57,7 +62,8 @@ DATASETS_CONFIG_LIST = [sach_noi_config]
 
 
 # Define the path where XTTS v2.0.1 files will be downloaded
-CHECKPOINTS_OUT_PATH = os.path.join(OUT_PATH, "XTTS_v2.0_original_model_files/")
+CHECKPOINTS_OUT_PATH = os.path.join(
+    OUT_PATH, "XTTS_v2.0_original_model_files/")
 os.makedirs(CHECKPOINTS_OUT_PATH, exist_ok=True)
 
 
@@ -66,15 +72,19 @@ DVAE_CHECKPOINT_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/dva
 MEL_NORM_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/mel_stats.pth"
 
 # Set the path to the downloaded files
-DVAE_CHECKPOINT = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(DVAE_CHECKPOINT_LINK))
+DVAE_CHECKPOINT = os.path.join(
+    CHECKPOINTS_OUT_PATH, os.path.basename(DVAE_CHECKPOINT_LINK))
+# DVAE_CHECKPOINT = '/lustre/scratch/client/vinai/users/thivt1/code/XTTSv2-Finetuning-for-New-Languages/checkpoints/finetuned/dvae.pth'
 print(f'dvae checkpoint: {DVAE_CHECKPOINT}')
-MEL_NORM_FILE = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(MEL_NORM_LINK))
+MEL_NORM_FILE = os.path.join(
+    CHECKPOINTS_OUT_PATH, os.path.basename(MEL_NORM_LINK))
 print(f'mel norm file: {MEL_NORM_FILE}')
 
 # download DVAE files if needed
 if not os.path.isfile(DVAE_CHECKPOINT) or not os.path.isfile(MEL_NORM_FILE):
     print(" > Downloading DVAE files!")
-    ModelManager._download_model_files([MEL_NORM_LINK, DVAE_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True)
+    ModelManager._download_model_files(
+        [MEL_NORM_LINK, DVAE_CHECKPOINT_LINK], CHECKPOINTS_OUT_PATH, progress_bar=True)
 
 
 # Download XTTS v2.0 checkpoint if needed
@@ -86,8 +96,8 @@ XTTS_CHECKPOINT_LINK = "https://coqui.gateway.scarf.sh/hf-coqui/XTTS-v2/main/mod
 TOKENIZER_FILE = "./vocab.json"
 print(f'tokenizer file: {TOKENIZER_FILE}')
 # XTTS_CHECKPOINT = os.path.join(CHECKPOINTS_OUT_PATH, os.path.basename(XTTS_CHECKPOINT_LINK))  # model.pth file
-# XTTS_CHECKPOINT = "run/training/GPT_XTTS_v2.0_LJSpeech_FT_BIG_DATASET-August-08-2024_04+49PM-1b0177d08/best_model_3339560.pth"
-XTTS_CHECKPOINT = "run/training/GPT_XTTS_v2.0_FT_SACHNOI-August-19-2024_12+36PM-1b0177d08/best_model_1920985.pth"
+# XTTS_CHECKPOINT = "run/training/SACHNOI_FINETUNE_1,5K-October-12-2024_04+34PM-0000000/checkpoint_15000.pth"
+XTTS_CHECKPOINT = 'run/training/SACHNOI_FINETUNE_1,5K_FROM_CKPT_SHORT_AUDIO_360K-October-12-2024_06+33PM-0000000/5k.pth'
 print(f'xtts checkpoint: {XTTS_CHECKPOINT}')
 
 # download XTTS v2.0 files if needed
@@ -100,8 +110,8 @@ if not os.path.isfile(TOKENIZER_FILE) or not os.path.isfile(XTTS_CHECKPOINT):
 
 # Training sentences generations
 SPEAKER_REFERENCE = [
-    "/workspace/code/oneshot/big_processed_data/Đàm_Thanh_Phượng/Cuộc_Đại_Lạm_Phát_/11._DLP_C05B_Su_Phuc_Hoi_Cua_Chu_Nghia_Tu_Ban/chunk-2485_48-2498_7_trimmed_norm_float32.wav",
-    "/workspace/code/oneshot/big_processed_data/Nguyễn_Văn_Khỏa/Thần_Thoại_Hy_Lạp/than-thoai-9/chunk-2541_74-2554_64_trimmed_norm_float32.wav"
+    "/lustre/scratch/client/vinai/users/thivt1/code/oneshot/big_processed_data/Đàm_Thanh_Phượng/Cuộc_Đại_Lạm_Phát_/11._DLP_C05B_Su_Phuc_Hoi_Cua_Chu_Nghia_Tu_Ban/chunk-2485_48-2498_7_trimmed_norm_float32.wav",
+    "/lustre/scratch/client/vinai/users/thivt1/code/oneshot/big_processed_data/Nguyễn_Văn_Khỏa/Thần_Thoại_Hy_Lạp/than-thoai-9/chunk-2541_74-2554_64_trimmed_norm_float32.wav"
 ]
 LANGUAGE = "vi"
 
@@ -112,11 +122,12 @@ def main():
         max_conditioning_length=132300,  # 6 secs
         min_conditioning_length=66150,  # 3 secs
         debug_loading_failures=False,
-        max_wav_length=441000,  # ~11.6 seconds
-        max_text_length=400,
+        max_wav_length=441000,  # 20 seconds
+        max_text_length=450,  # in characters
         mel_norm_file=MEL_NORM_FILE,
         dvae_checkpoint=DVAE_CHECKPOINT,
-        xtts_checkpoint=XTTS_CHECKPOINT,  # checkpoint path of the model that you want to fine-tune
+        # checkpoint path of the model that you want to fine-tune
+        xtts_checkpoint=XTTS_CHECKPOINT,
         tokenizer_file=TOKENIZER_FILE,
         gpt_num_audio_tokens=1026,
         gpt_start_audio_token=1024,
@@ -125,7 +136,8 @@ def main():
         gpt_use_perceiver_resampler=True,
     )
     # define audio config
-    audio_config = XttsAudioConfig(sample_rate=22050, dvae_sample_rate=22050, output_sample_rate=24000)
+    audio_config = XttsAudioConfig(
+        sample_rate=22050, dvae_sample_rate=22050, output_sample_rate=24000)
     # training parameters config
     config = GPTTrainerConfig(
         output_path=OUT_PATH,
@@ -143,22 +155,24 @@ def main():
         eval_batch_size=BATCH_SIZE,
         num_loader_workers=8,
         eval_split_max_size=256,
-        print_step=50,
-        plot_step=100,
-        log_model_step=1000,
-        save_step=10000,
-        save_n_checkpoints=1,
+        print_step=500,
+        plot_step=500,
+        log_model_step=500,
+        save_step=3360,
+        save_n_checkpoints=20,
         save_checkpoints=True,
         # target_loss="loss",
         print_eval=False,
         # Optimizer values like tortoise, pytorch implementation with modifications to not apply WD to non-weight parameters.
         optimizer="AdamW",
         optimizer_wd_only_on_weights=OPTIMIZER_WD_ONLY_ON_WEIGHTS,
-        optimizer_params={"betas": [0.9, 0.96], "eps": 1e-8, "weight_decay": 1e-2},
+        optimizer_params={"betas": [0.9, 0.96],
+                          "eps": 1e-8, "weight_decay": 1e-2},
         lr=5e-06,  # learning rate
         lr_scheduler="MultiStepLR",
         # it was adjusted accordly for the new step scheme
-        lr_scheduler_params={"milestones": [50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1},
+        lr_scheduler_params={"milestones": [
+            50000 * 18, 150000 * 18, 300000 * 18], "gamma": 0.5, "last_epoch": -1},
         test_sentences=[
             {
                 "text": "minh lê đang làm gì thế",
@@ -198,8 +212,8 @@ def main():
             vin27_train += 1
         elif "oneshot" in audio_file:
             sachnoi_train += 1
-        else: 
-            print(f'wtf is going on with {audio_file}') 
+        else:
+            print(f'wtf is going on with {audio_file}')
 
     for sample in eval_samples:
         audio_file = sample['audio_file']
@@ -207,8 +221,8 @@ def main():
             vin27_eval += 1
         elif "oneshot" in audio_file:
             sachnoi_eval += 1
-        else: 
-            print(f'wtf is going on with {audio_file}') 
+        else:
+            print(f'wtf is going on with {audio_file}')
 
     print(f'# vin27 samples in trainset: {vin27_train}')
     print(f'# vin27 samples in eval: {vin27_eval}')
