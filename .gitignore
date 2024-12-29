@@ -171,7 +171,7 @@ coqui_recipes/*
 local_scripts/*
 coqui_demos/*
 recipes/vctk/yourtts/SACH_NOI/wavs/*
-recipes/vctk/yourtts/VIN27/*
+recipes/vctk/yourtts/VIN27
 recipes/ljspeech/xtts_v2/VIN27/*
 recipes/ljspeech/xtts_v2/SACHNOI/
 recipes/ljspeech/xtts_v2/results*

@@ -17,12 +17,17 @@ def load_model(xtts_checkpoint, xtts_config, xtts_vocab):
     clear_gpu_cache()
     config = XttsConfig()
     config.load_json(xtts_config)
-    xtts_model = Xtts(config)
+    xtts_model = Xtts.init_from_config(config)
     print("Loading XTTS model...")
     xtts_model.load_checkpoint(config, checkpoint_path=xtts_checkpoint, vocab_path=xtts_vocab, use_deepspeed=False)
     if torch.cuda.is_available():
         xtts_model.cuda()
     print("Model loaded!")
+    
+    # Print the number of parameters in the model
+    num_params = sum(p.numel() for p in xtts_model.parameters() if p.requires_grad)
+    print(f"Number of parameters in the model: {num_params}")
+    
     return xtts_model
 
 def set_seed(seed):
@@ -32,8 +37,6 @@ def set_seed(seed):
         torch.cuda.manual_seed_all(seed)
 
 def run_tts(model, lang, tts_text, speaker_audio_file, output_path):
-    # if seed is not None:
-    #     set_seed(seed)
     
     gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(
         audio_path=speaker_audio_file,
